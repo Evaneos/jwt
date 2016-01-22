@@ -22,7 +22,7 @@ class JWTDecoder
      * @param string $secretKey
      * @param array  $allowedAlgorithms
      */
-    public function __construct($secretKey, array $allowedAlgorithms = [])
+    public function __construct($secretKey, array $allowedAlgorithms = array())
     {
         $this->secretKey = $secretKey;
         $this->allowedAlgorithms = $allowedAlgorithms;
