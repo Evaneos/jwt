@@ -17,7 +17,9 @@
   },
   "require-dev": {
     "symfony/security": "^2.7",
-    "silex/silex": "^1.3"
+    "silex/silex": "^1.3",
+    "phpspec/phpspec": "~2.0",
+    "jms/serializer": "^1.1.0"
   },
   "suggest": {
     "symfony/security": "To use with symfony / silex",
