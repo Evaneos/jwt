@@ -2,8 +2,7 @@
 
 namespace Evaneos\JWT\Util;
 
-use Evaneos\JWT\User;
-use Evaneos\JWT\UserId;
+use Evaneos\Security\User;
 
 class JWTUserBuilder
 {
@@ -11,34 +10,34 @@ class JWTUserBuilder
      * @var JWTDecoder
      */
     private $decoder;
-    
+
     /**
      * @var JWTEncoder
      */
     private $encoder;
-    
+
     /**
-     * @var UserConverter
+     * @var SecurityUserConverter
      */
     private $converter;
-    
+
     /**
      * Constructor.
      *
      * @param JWTDecoder    $decoder
      * @param JWTEncoder    $encoder
-     * @param UserConverter $converter
+     * @param SecurityUserConverter $converter
      */
     public function __construct(
         JWTDecoder $decoder,
         JWTEncoder $encoder,
-        UserConverter $converter
+        SecurityUserConverter $converter
     ) {
         $this->decoder = $decoder;
         $this->encoder = $encoder;
         $this->converter = $converter;
     }
-    
+
     /**
      * @param  string $token
      * @return User
@@ -47,7 +46,7 @@ class JWTUserBuilder
     {
         return $this->converter->buildUserFromToken($this->decoder->decode($token));
     }
-    
+
     /**
      * @param  User $user
      * @return string

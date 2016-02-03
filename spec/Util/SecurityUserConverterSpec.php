@@ -1,23 +1,21 @@
 <?php
 
-namespace spec\Evaneos\JWT\Providers\Silex;
+namespace spec\Evaneos\JWT\Util;
 
-use Evaneos\JWT\User;
-use Evaneos\JWT\UserId;
-use Evaneos\JWT\Util\UserConverter;
+use Evaneos\JWT\Util\SecurityUserConverter;
+use Evaneos\Security\User;
+use Evaneos\Security\UserId;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
+/**
+ * @mixin SecurityUserConverter
+ */
 class SecurityUserConverterSpec extends ObjectBehavior
 {
     function it_is_initializable()
     {
-        $this->shouldHaveType('Evaneos\REST\Security\JWT\SecurityUserConverter');
-    }
-
-    function it_implements_UserConverter()
-    {
-        $this->shouldImplement(UserConverter::class);
+        $this->shouldHaveType('Evaneos\JWT\Util\SecurityUserConverter');
     }
 
     function it_builds_a_User()
