@@ -2,6 +2,8 @@
 
 namespace Evaneos\JWT\Providers\Silex;
 
+use Evaneos\JWT\JWTRetrieval\JWTNotFoundException;
+use Evaneos\JWT\JWTRetrieval\JWTRetrievalStrategyInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -20,15 +22,25 @@ class JWTListener implements ListenerInterface
     private $authenticationManager;
 
     /**
+     * @var JWTRetrievalStrategyInterface
+     */
+    private $jwtRetrievalStrategy;
+
+    /**
      * Constructor.
      *
      * @param TokenStorageInterface          $tokenStorage
      * @param AuthenticationManagerInterface $authenticationManager
+     * @param JWTRetrievalStrategyInterface  $jwtRetrievalStrategy
      */
-    public function __construct(TokenStorageInterface $tokenStorage, AuthenticationManagerInterface $authenticationManager)
-    {
+    public function __construct(
+        TokenStorageInterface $tokenStorage,
+        AuthenticationManagerInterface $authenticationManager,
+        JWTRetrievalStrategyInterface $jwtRetrievalStrategy
+    ) {
         $this->tokenStorage = $tokenStorage;
         $this->authenticationManager = $authenticationManager;
+        $this->jwtRetrievalStrategy = $jwtRetrievalStrategy;
     }
 
     /**
@@ -38,9 +50,9 @@ class JWTListener implements ListenerInterface
      */
     public function handle(GetResponseEvent $event)
     {
-        $request = $event->getRequest();
-
-        if (null === $jwtTokenValue = $this->getToken($request->headers->get('Authorization'))) {
+        try {
+            $jwtTokenValue = $this->jwtRetrievalStrategy->getToken($event->getRequest());
+        } catch (JWTNotFoundException $e) {
             return;
         }
 
@@ -50,17 +62,5 @@ class JWTListener implements ListenerInterface
         $authToken = $this->authenticationManager->authenticate($jwtToken);
 
         $this->tokenStorage->setToken($authToken);
-    }
-
-    /**
-     * @param string $authorizationHeader
-     *
-     * @return string
-     */
-    private function getToken($authorizationHeader)
-    {
-        list($token) = sscanf($authorizationHeader, 'Bearer %s');
-
-        return $token;
     }
 }

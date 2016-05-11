@@ -2,6 +2,7 @@
 
 namespace Evaneos\JWT\Providers\Silex;
 
+use Evaneos\JWT\JWTRetrieval\AuthorizationBearerStrategy;
 use Evaneos\JWT\Util\JWTDecoder;
 use Evaneos\JWT\Util\SecurityUserConverter;
 use Silex\Application;
@@ -20,8 +21,12 @@ class SecurityJWTServiceProvider implements ServiceProviderInterface
      */
     public function register(Application $app)
     {
+        $app['security.jwt_retrieval.strategy'] = $app->share(function () {
+            return new AuthorizationBearerStrategy();
+        });
+
         $app['security.authentication_listener.factory.jwt'] = $app->protect(function ($name, $options) use ($app) {
-            
+
             $app['security.authentication_provider.' . $name . '.jwt'] = $app->share(function () use ($app, $options) {
                 $encoder = new JWTEncoder($options['secret_key'], reset($options['allowed_algorithms']));
                 $decoder = new JWTDecoder($options['secret_key'], $options['allowed_algorithms']);
@@ -30,8 +35,12 @@ class SecurityJWTServiceProvider implements ServiceProviderInterface
                 return new JWTAuthenticationProvider($userBuilder);
             });
 
-            $app['security.authentication_listener.' . $name . '.jwt'] = $app->share(function () use ($app) {
-                return new JWTListener($app['security.token_storage'], $app['security.authentication_manager']);
+            $app['security.authentication_listener.' . $name . '.jwt'] = $app->share(function () use ($app, $name) {
+                return new JWTListener(
+                    $app['security.token_storage'],
+                    $app['security.authentication_manager'],
+                    $app['security.jwt_retrieval.strategy']
+                );
             });
 
             return array(
