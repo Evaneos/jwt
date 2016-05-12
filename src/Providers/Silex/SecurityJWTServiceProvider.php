@@ -3,13 +3,13 @@
 namespace Evaneos\JWT\Providers\Silex;
 
 use Evaneos\JWT\JWTRetrieval\AuthorizationBearerStrategy;
+use Evaneos\JWT\JWTRetrieval\QueryParameterStrategy;
 use Evaneos\JWT\Util\JWTDecoder;
 use Evaneos\JWT\Util\SecurityUserConverter;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Evaneos\JWT\Util\JWTUserBuilder;
 use Evaneos\JWT\Util\JWTEncoder;
-
 
 class SecurityJWTServiceProvider implements ServiceProviderInterface
 {
@@ -21,8 +21,12 @@ class SecurityJWTServiceProvider implements ServiceProviderInterface
      */
     public function register(Application $app)
     {
-        $app['security.jwt_retrieval.strategy'] = $app->share(function () {
+        $app['security.jwt_retrieval.authorization_bearer.strategy'] = $app->share(function () {
             return new AuthorizationBearerStrategy();
+        });
+
+        $app['security.jwt_retrieval.query_parameter.strategy'] = $app->share(function () {
+            return new QueryParameterStrategy();
         });
 
         $app['security.authentication_listener.factory.jwt'] = $app->protect(function ($name, $options) use ($app) {
@@ -32,14 +36,19 @@ class SecurityJWTServiceProvider implements ServiceProviderInterface
                 $decoder = new JWTDecoder($options['secret_key'], $options['allowed_algorithms']);
                 $converter = new SecurityUserConverter();
                 $userBuilder = new JWTUserBuilder($decoder, $encoder, $converter);
+
                 return new JWTAuthenticationProvider($userBuilder);
             });
 
             $app['security.authentication_listener.' . $name . '.jwt'] = $app->share(function () use ($app, $name) {
+                $strategyName = isset($app['security.jwt_retrieval.strategy_name'])
+                    ? $app['security.jwt_retrieval.strategy_name']
+                    : 'authorization_bearer';
+
                 return new JWTListener(
                     $app['security.token_storage'],
                     $app['security.authentication_manager'],
-                    $app['security.jwt_retrieval.strategy']
+                    $app['security.jwt_retrieval.' . $strategyName . '.strategy']
                 );
             });
 
