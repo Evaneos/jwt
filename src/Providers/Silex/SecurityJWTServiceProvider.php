@@ -3,6 +3,7 @@
 namespace Evaneos\JWT\Providers\Silex;
 
 use Evaneos\JWT\JWTRetrieval\AuthorizationBearerStrategy;
+use Evaneos\JWT\JWTRetrieval\ChainStrategy;
 use Evaneos\JWT\JWTRetrieval\QueryParameterStrategy;
 use Evaneos\JWT\Util\JWTDecoder;
 use Evaneos\JWT\Util\SecurityUserConverter;
@@ -29,6 +30,13 @@ class SecurityJWTServiceProvider implements ServiceProviderInterface
             return new QueryParameterStrategy();
         });
 
+        $app['security.jwt_retrieval.chain.strategy'] = $app->share(function () use ($app) {
+            return new ChainStrategy([
+                $app['security.jwt_retrieval.authorization_bearer.strategy'],
+                $app['security.jwt_retrieval.query_parameter.strategy'],
+            ]);
+        });
+
         $app['security.authentication_listener.factory.jwt'] = $app->protect(function ($name, $options) use ($app) {
 
             $app['security.authentication_provider.' . $name . '.jwt'] = $app->share(function () use ($app, $options) {
@@ -40,9 +48,9 @@ class SecurityJWTServiceProvider implements ServiceProviderInterface
                 return new JWTAuthenticationProvider($userBuilder);
             });
 
-            $app['security.authentication_listener.' . $name . '.jwt'] = $app->share(function () use ($app, $name) {
-                $strategyName = isset($app['security.jwt_retrieval.strategy_name'])
-                    ? $app['security.jwt_retrieval.strategy_name']
+            $app['security.authentication_listener.' . $name . '.jwt'] = $app->share(function () use ($app, $name, $options) {
+                $strategyName = isset($options['retrieval_strategy'])
+                    ? $options['retrieval_strategy']
                     : 'authorization_bearer';
 
                 return new JWTListener(
