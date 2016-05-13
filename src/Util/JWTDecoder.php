@@ -32,9 +32,15 @@ class JWTDecoder
      * @param string $encodedToken
      *
      * @return object
+     *
+     * @throws JWTDecodeUnexpectedValueException
      */
     public function decode($encodedToken)
     {
-        return JWT::decode($encodedToken, $this->secretKey, $this->allowedAlgorithms);
+        try {
+            return JWT::decode($encodedToken, $this->secretKey, $this->allowedAlgorithms);
+        } catch (\UnexpectedValueException $e) {
+            throw new JWTDecodeUnexpectedValueException('JWT can not be decoded.', 0, $e);
+        }
     }
 }

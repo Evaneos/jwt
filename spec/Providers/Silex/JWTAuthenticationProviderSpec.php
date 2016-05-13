@@ -48,6 +48,13 @@ class JWTAuthenticationProviderSpec extends ObjectBehavior
         $this->shouldThrow(AuthenticationException::class)->during('authenticate', [$token]);
     }
 
+    function it_throws_an_AuthenticationException_if_buildUserFromToken_fails(TokenInterface $token, JWTUserBuilder $JWTUserBuilder)
+    {
+        $JWTUserBuilder->buildUserFromToken(Argument::any())->willThrow(\Exception::class);
+
+        $this->shouldThrow(AuthenticationException::class)->duringAuthenticate($token);
+    }
+
     function it_enriches_the_JWTToken_with_the_user_returned_by_user_convert(JWTUserBuilder $JWTUserBuilder, JWTToken $jwtToken)
     {
         $jwtToken->getCredentials()->willReturn('credentials');
