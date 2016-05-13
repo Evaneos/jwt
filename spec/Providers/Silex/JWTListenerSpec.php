@@ -2,6 +2,7 @@
 
 namespace spec\Evaneos\JWT\Providers\Silex;
 
+use Evaneos\JWT\JWTRetrieval\JWTRetrievalStrategyInterface;
 use Evaneos\JWT\Providers\Silex\JWTToken;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
@@ -13,9 +14,9 @@ use Symfony\Component\Security\Http\Firewall\ListenerInterface;
 
 class JWTListenerSpec extends ObjectBehavior
 {
-    function let(AuthenticationManagerInterface $authenticationManager, TokenStorageInterface $tokenStorage)
+    function let(AuthenticationManagerInterface $authenticationManager, TokenStorageInterface $tokenStorage, JWTRetrievalStrategyInterface $jwtRetrievalStrategy)
     {
-        $this->beConstructedWith($tokenStorage, $authenticationManager);
+        $this->beConstructedWith($tokenStorage, $authenticationManager, $jwtRetrievalStrategy);
     }
     function it_is_initializable()
     {
@@ -27,59 +28,50 @@ class JWTListenerSpec extends ObjectBehavior
         $this->shouldImplement(ListenerInterface::class);
     }
 
-    function it_doesnt_authenticate_if_Authorization_header_is_not_found(AuthenticationManagerInterface $authenticationManager, GetResponseEvent $event)
-    {
+    function it_doesnt_authenticate_if_no_token_is_found(
+        AuthenticationManagerInterface $authenticationManager,
+        JWTRetrievalStrategyInterface $jwtRetrievalStrategy,
+        GetResponseEvent $event
+    ) {
         $request = new Request();
         $event->getRequest()->willReturn($request);
-        $this->handle($event);
 
+        $jwtRetrievalStrategy->getToken($request)->willThrow('Evaneos\JWT\JWTRetrieval\JWTNotFoundException');
+
+        $this->handle($event);
         $authenticationManager->authenticate(Argument::any())->shouldNotBeCalled();
     }
 
-    function it_doesnt_authenticate_if_Authorization_Bearer_token_is_not_found(AuthenticationManagerInterface $authenticationManager, GetResponseEvent $event)
-    {
+    function it_authenticates_if_a_token_is_found(
+        AuthenticationManagerInterface $authenticationManager,
+        JWTRetrievalStrategyInterface $jwtRetrievalStrategy,
+        GetResponseEvent $event
+    ) {
         $request = new Request();
-        $request->headers->add([
-            'Authorization' => 'Something JWTToken'
-        ]);
-
         $event->getRequest()->willReturn($request);
-        $this->handle($event);
 
-        $authenticationManager->authenticate(Argument::any())->shouldNotBeCalled();
-    }
-
-    function it_authenticates_if_a_Authorization_Bearer_token_is_found(AuthenticationManagerInterface $authenticationManager, GetResponseEvent $event)
-    {
-        $request = new Request();
-        $request->headers->add([
-            'Authorization' => 'Bearer JWTToken'
-        ]);
-        $event->getRequest()->willReturn($request);
-        $this->handle($event);
+        $jwtRetrievalStrategy->getToken($request)->willReturn('JWTToken');
 
         $jwtToken = new JWTToken();
         $jwtToken->setToken('JWTToken');
 
+        $this->handle($event);
         $authenticationManager->authenticate($jwtToken)->shouldBeCalled();
     }
 
-    function it_stores_the_token_returned_by_AuthenticationManager(AuthenticationManagerInterface $authenticationManager, TokenStorageInterface $tokenStorage, GetResponseEvent $event)
-    {
+    function it_stores_the_token_returned_by_AuthenticationManager(
+        AuthenticationManagerInterface $authenticationManager,
+        TokenStorageInterface $tokenStorage,
+        GetResponseEvent $event
+    ) {
         $request = new Request();
-        $request->headers->add([
-            'Authorization' => 'Bearer JWTToken'
-        ]);
         $event->getRequest()->willReturn($request);
 
-        $jwtToken = new JWTToken();
-        $jwtToken->setToken('JWTToken');
-
         $authToken = new JWTToken();
-        $authenticationManager->authenticate($jwtToken)->willReturn($authToken);
+
+        $authenticationManager->authenticate(Argument::any())->willReturn($authToken);
 
         $this->handle($event);
-
         $tokenStorage->setToken($authToken)->shouldBeCalled();
     }
 }
