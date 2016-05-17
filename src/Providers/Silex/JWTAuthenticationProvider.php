@@ -2,6 +2,7 @@
 
 namespace Evaneos\JWT\Providers\Silex;
 
+use Evaneos\JWT\Util\JWTDecodeUnexpectedValueException;
 use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProviderInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
@@ -42,8 +43,12 @@ class JWTAuthenticationProvider implements AuthenticationProviderInterface
         if (!$token->getCredentials()) {
             throw new AuthenticationException('JWTToken must contain a token in order to authenticate.');
         }
-        
-        $user = $this->userBuilder->buildUserFromToken($token->getCredentials());
+
+        try {
+            $user = $this->userBuilder->buildUserFromToken($token->getCredentials());
+        } catch (JWTDecodeUnexpectedValueException $e) {
+            throw new AuthenticationException('Failed to decode the JWT');
+        }
 
         $token->setUser($user);
 

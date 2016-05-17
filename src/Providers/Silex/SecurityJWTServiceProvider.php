@@ -6,11 +6,12 @@ use Evaneos\JWT\JWTRetrieval\AuthorizationBearerStrategy;
 use Evaneos\JWT\JWTRetrieval\ChainStrategy;
 use Evaneos\JWT\JWTRetrieval\QueryParameterStrategy;
 use Evaneos\JWT\Util\JWTDecoder;
+use Evaneos\JWT\Util\JWTEncoder;
+use Evaneos\JWT\Util\JWTUserBuilder;
 use Evaneos\JWT\Util\SecurityUserConverter;
+use Evaneos\JWT\Security\JWTAuthenticationEntryPoint;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
-use Evaneos\JWT\Util\JWTUserBuilder;
-use Evaneos\JWT\Util\JWTEncoder;
 
 class SecurityJWTServiceProvider implements ServiceProviderInterface
 {
@@ -37,6 +38,12 @@ class SecurityJWTServiceProvider implements ServiceProviderInterface
             ]);
         });
 
+        $app['security.entry_point.jwt._proto'] = $app->protect(function () use ($app) {
+            return $app->share(function () {
+                return new JWTAuthenticationEntryPoint();
+            });
+        });
+        
         $app['security.authentication_listener.factory.jwt'] = $app->protect(function ($name, $options) use ($app) {
 
             $app['security.authentication_provider.' . $name . '.jwt'] = $app->share(function () use ($app, $options) {
@@ -60,10 +67,12 @@ class SecurityJWTServiceProvider implements ServiceProviderInterface
                 );
             });
 
+            $app['security.entry_point.' . $name . '.jwt'] = $app['security.entry_point.jwt._proto']($name, $options);
+
             return array(
                 'security.authentication_provider.' . $name . '.jwt',
                 'security.authentication_listener.' . $name . '.jwt',
-                null,
+                'security.entry_point.' . $name . '.jwt',
                 'pre_auth',
             );
         });

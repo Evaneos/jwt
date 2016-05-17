@@ -40,6 +40,7 @@ class JWTUserBuilder
 
     /**
      * @param  string $token
+     *
      * @return User
      */
     public function buildUserFromToken($token)

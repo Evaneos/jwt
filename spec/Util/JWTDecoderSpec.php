@@ -2,6 +2,7 @@
 
 namespace spec\Evaneos\JWT\Util;
 
+use Evaneos\JWT\Util\JWTDecodeUnexpectedValueException;
 use Firebase\JWT\JWT;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
@@ -29,15 +30,15 @@ class JWTDecoderSpec extends ObjectBehavior
         $this->decode($jwtToken)->shouldBeLike($decodedToken);
     }
 
-    function it_throws_an_Exception_if_secret_is_not_correct()
+    function it_throws_a_JWTDecodeUnexpectedValueException_if_there_is_an_UnexpectedValueException()
     {
         $decodedToken = new \stdClass();
         $decodedToken->sub = '1234567890';
         $decodedToken->name = "John Doe";
 
-        $jwtToken = JWT::encode($decodedToken, 'poney');
+        $jwtToken = JWT::encode($decodedToken, 'different_secret_key');
 
-       $this->shouldThrow(\Exception::class)->during('decode', [$jwtToken]);
+        $this->shouldThrow(JWTDecodeUnexpectedValueException::class)->during('decode', [$jwtToken]);
     }
 
     function it_throws_an_Exception_if_algorithm_is_not_allowed()
