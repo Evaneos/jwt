@@ -2,7 +2,6 @@
 
 namespace Evaneos\JWT\Util;
 
-
 use Evaneos\Security\User;
 use Evaneos\Security\UserId;
 
