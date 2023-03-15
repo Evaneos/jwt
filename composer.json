@@ -14,7 +14,7 @@
   "require": {
     "php": ">=5.5",
     "evaneos/security": "^0.1",
-    "firebase/php-jwt": "^5.0"
+    "firebase/php-jwt": "^6.0"
   },
   "require-dev": {
     "phpspec/phpspec": "~2.0",
