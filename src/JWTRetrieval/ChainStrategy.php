@@ -9,7 +9,7 @@ class ChainStrategy implements JWTRetrievalStrategyInterface
     /**
      * @var JWTRetrievalStrategyInterface[]
      */
-    private $strategies;
+    private array $strategies;
 
     /**
      * ChainStrategy constructor.
@@ -24,13 +24,11 @@ class ChainStrategy implements JWTRetrievalStrategyInterface
     /**
      * {@inheritdoc}
      */
-    public function getToken(Request $request)
+    public function getToken(Request $request): string
     {
         foreach ($this->strategies as $strategy) {
             try {
-                $token = $strategy->getToken($request);
-
-                return $token;
+                return $strategy->getToken($request);
             } catch (JWTNotFoundException $e) {
             }
         }

@@ -25,7 +25,7 @@ class JWTDecoderSpec extends ObjectBehavior
         $decodedToken->sub = '1234567890';
         $decodedToken->name = "John Doe";
 
-        $jwtToken = JWT::encode($decodedToken, 'secret');
+        $jwtToken = JWT::encode($decodedToken, 'secret','HS256');
 
         $this->decode($jwtToken)->shouldBeLike($decodedToken);
     }
@@ -36,7 +36,7 @@ class JWTDecoderSpec extends ObjectBehavior
         $decodedToken->sub = '1234567890';
         $decodedToken->name = "John Doe";
 
-        $jwtToken = JWT::encode($decodedToken, 'different_secret_key');
+        $jwtToken = JWT::encode($decodedToken, 'different_secret_key','HS256');
 
         $this->shouldThrow(JWTDecodeUnexpectedValueException::class)->during('decode', [$jwtToken]);
     }
@@ -60,7 +60,7 @@ class JWTDecoderSpec extends ObjectBehavior
         $decodedToken->sub = '1234567890';
         $decodedToken->name = "John Doe";
 
-        $jwtToken = JWT::encode($decodedToken, 'poney');
+        $jwtToken = JWT::encode($decodedToken, 'poney','HS256');
 
         $this->decode($jwtToken)->shouldBeLike($decodedToken);
     }

@@ -6,17 +6,14 @@ use Symfony\Component\HttpFoundation\Request;
 
 class QueryParameterStrategy implements JWTRetrievalStrategyInterface
 {
-    /**
-     * @var string
-     */
-    private $parameterName;
+    private string $parameterName;
 
     /**
      * QueryParameterStrategy constructor.
      *
      * @param string $parameterName
      */
-    public function __construct($parameterName = 'jwt')
+    public function __construct(string $parameterName = 'jwt')
     {
         $this->parameterName = $parameterName;
     }
@@ -24,7 +21,7 @@ class QueryParameterStrategy implements JWTRetrievalStrategyInterface
     /**
      * {@inheritdoc}
      */
-    public function getToken(Request $request)
+    public function getToken(Request $request): string
     {
         if (null === $token = $request->query->get($this->parameterName)) {
             throw new JWTNotFoundException();

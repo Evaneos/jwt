@@ -38,7 +38,7 @@ class JWTDecoder
     public function decode($encodedToken)
     {
         try {
-            return JWT::decode($encodedToken, $this->secretKey, $this->allowedAlgorithms);
+            return JWT::decode($encodedToken, new Key($this->secretKey, $this->allowedAlgorithms) );
         } catch (\UnexpectedValueException $e) {
             throw new JWTDecodeUnexpectedValueException('JWT can not be decoded.', 0, $e);
         }
