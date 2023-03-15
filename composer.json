@@ -29,7 +29,8 @@
   },
   "autoload": {
     "psr-4": {
-      "Evaneos\\JWT\\": "src"
+      "Evaneos\\JWT\\": "src",
+      "spec\\Evaneos\\JWT\\": "spec"
     }
   }
 }

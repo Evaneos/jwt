@@ -6,31 +6,13 @@ use Evaneos\Security\User;
 
 class JWTUserBuilder
 {
-    /**
-     * @var JWTDecoder
-     */
-    private $decoder;
+    private JWTDecoder $decoder;
+    private JWTEncoder $encoder;
+    private SecurityUserConverter $converter;
 
-    /**
-     * @var JWTEncoder
-     */
-    private $encoder;
-
-    /**
-     * @var SecurityUserConverter
-     */
-    private $converter;
-
-    /**
-     * Constructor.
-     *
-     * @param JWTDecoder    $decoder
-     * @param JWTEncoder    $encoder
-     * @param SecurityUserConverter $converter
-     */
     public function __construct(
-        JWTDecoder $decoder,
-        JWTEncoder $encoder,
+        JWTDecoder            $decoder,
+        JWTEncoder            $encoder,
         SecurityUserConverter $converter
     ) {
         $this->decoder = $decoder;
@@ -39,20 +21,14 @@ class JWTUserBuilder
     }
 
     /**
-     * @param  string $token
-     *
-     * @return User
+     * @throws JWTDecodeUnexpectedValueException
      */
-    public function buildUserFromToken($token)
+    public function buildUserFromToken(string $token): User
     {
         return $this->converter->buildUserFromToken($this->decoder->decode($token));
     }
 
-    /**
-     * @param  User $user
-     * @return string
-     */
-    public function buildTokenFromUser(User $user)
+    public function buildTokenFromUser(User $user): string
     {
         return $this->encoder->encode($this->converter->buildTokenFromUser($user));
     }
