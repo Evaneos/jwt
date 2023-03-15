@@ -21,9 +21,7 @@ class JWTDecoderSpec extends ObjectBehavior
 
     function it_decodes_JWTToken()
     {
-        $decodedToken = new \stdClass();
-        $decodedToken->sub = '1234567890';
-        $decodedToken->name = "John Doe";
+        $decodedToken = ['sub' => '1234567890', 'name' => "John Doe"];
 
         $jwtToken = JWT::encode($decodedToken, 'secret','HS256');
 
@@ -32,9 +30,7 @@ class JWTDecoderSpec extends ObjectBehavior
 
     function it_throws_a_JWTDecodeUnexpectedValueException_if_there_is_an_UnexpectedValueException()
     {
-        $decodedToken = new \stdClass();
-        $decodedToken->sub = '1234567890';
-        $decodedToken->name = "John Doe";
+        $decodedToken = ['sub' => '1234567890', 'name' => "John Doe"];
 
         $jwtToken = JWT::encode($decodedToken, 'different_secret_key','HS256');
 
@@ -43,9 +39,7 @@ class JWTDecoderSpec extends ObjectBehavior
 
     function it_throws_an_Exception_if_algorithm_is_not_allowed()
     {
-        $decodedToken = new \stdClass();
-        $decodedToken->sub = '1234567890';
-        $decodedToken->name = "John Doe";
+        $decodedToken = ['sub' => '1234567890', 'name' => "John Doe"];
 
         $jwtToken = JWT::encode($decodedToken, 'secret', 'HS384');
 
@@ -56,9 +50,7 @@ class JWTDecoderSpec extends ObjectBehavior
     {
         $this->beConstructedWith("poney", ["HS256"]);
 
-        $decodedToken = new \stdClass();
-        $decodedToken->sub = '1234567890';
-        $decodedToken->name = "John Doe";
+        $decodedToken = ['sub' => '1234567890', 'name' => "John Doe"];
 
         $jwtToken = JWT::encode($decodedToken, 'poney','HS256');
 
@@ -69,9 +61,7 @@ class JWTDecoderSpec extends ObjectBehavior
     {
         $this->beConstructedWith("secret", ["HS256", "HS384"]);
 
-        $decodedToken = new \stdClass();
-        $decodedToken->sub = '1234567890';
-        $decodedToken->name = "John Doe";
+        $decodedToken = ['sub' => '1234567890', 'name' => "John Doe"];
 
         $jwtToken = JWT::encode($decodedToken, 'secret', 'HS384');
 
