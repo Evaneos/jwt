@@ -3,43 +3,37 @@
 namespace Evaneos\JWT\Util;
 
 use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+use stdClass;
+use UnexpectedValueException;
 
 class JWTDecoder
 {
     /**
-     * @var string
+     * @var Key|array<string,Key>
      */
-    private $secretKey;
+    private $keyOrKeyArray;
 
-    /**
-     * @var array
-     */
-    private $allowedAlgorithms;
-
-    /**
-     * Constructor.
-     *
-     * @param string $secretKey
-     * @param array  $allowedAlgorithms
-     */
-    public function __construct($secretKey, array $allowedAlgorithms = array())
+    public function __construct(string $secretKey, array $allowedAlgorithms = [])
     {
-        $this->secretKey = $secretKey;
-        $this->allowedAlgorithms = $allowedAlgorithms;
+        if (count($allowedAlgorithms) === 1) {
+            $this->keyOrKeyArray = new Key($secretKey, array_pop($allowedAlgorithms));
+        } else {
+            $this->keyOrKeyArray = [];
+            foreach ($allowedAlgorithms as $kid => $algorithm) {
+                $this->keyOrKeyArray[$kid] = new Key($secretKey, $algorithm);
+            }
+        }
     }
 
     /**
-     * @param string $encodedToken
-     *
-     * @return object
-     *
      * @throws JWTDecodeUnexpectedValueException
      */
-    public function decode($encodedToken)
+    public function decode(string $encodedToken): stdClass
     {
         try {
-            return JWT::decode($encodedToken, $this->secretKey, $this->allowedAlgorithms);
-        } catch (\UnexpectedValueException $e) {
+            return JWT::decode($encodedToken, $this->keyOrKeyArray);
+        } catch (UnexpectedValueException $e) {
             throw new JWTDecodeUnexpectedValueException('JWT can not be decoded.', 0, $e);
         }
     }

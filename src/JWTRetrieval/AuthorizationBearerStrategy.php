@@ -9,9 +9,9 @@ class AuthorizationBearerStrategy implements JWTRetrievalStrategyInterface
     /**
      * {@inheritdoc}
      */
-    public function getToken(Request $request)
+    public function getToken(Request $request): string
     {
-        list($token) = sscanf($request->headers->get('Authorization'), 'Bearer %s');
+        [$token] = sscanf($request->headers->get('Authorization'), 'Bearer %s');
 
         if (!$token) {
             throw new JWTNotFoundException();

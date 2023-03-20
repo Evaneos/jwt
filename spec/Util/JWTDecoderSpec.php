@@ -25,7 +25,7 @@ class JWTDecoderSpec extends ObjectBehavior
         $decodedToken->sub = '1234567890';
         $decodedToken->name = "John Doe";
 
-        $jwtToken = JWT::encode($decodedToken, 'secret');
+        $jwtToken = JWT::encode((array)$decodedToken, 'secret', 'HS256');
 
         $this->decode($jwtToken)->shouldBeLike($decodedToken);
     }
@@ -36,7 +36,7 @@ class JWTDecoderSpec extends ObjectBehavior
         $decodedToken->sub = '1234567890';
         $decodedToken->name = "John Doe";
 
-        $jwtToken = JWT::encode($decodedToken, 'different_secret_key');
+        $jwtToken = JWT::encode((array)$decodedToken, 'different_secret_key', 'HS256');
 
         $this->shouldThrow(JWTDecodeUnexpectedValueException::class)->during('decode', [$jwtToken]);
     }
@@ -47,7 +47,7 @@ class JWTDecoderSpec extends ObjectBehavior
         $decodedToken->sub = '1234567890';
         $decodedToken->name = "John Doe";
 
-        $jwtToken = JWT::encode($decodedToken, 'secret', 'HS384');
+        $jwtToken = JWT::encode((array)$decodedToken, 'secret', 'HS384');
 
         $this->shouldThrow(\Exception::class)->during('decode', [$jwtToken]);
     }
@@ -60,20 +60,20 @@ class JWTDecoderSpec extends ObjectBehavior
         $decodedToken->sub = '1234567890';
         $decodedToken->name = "John Doe";
 
-        $jwtToken = JWT::encode($decodedToken, 'poney');
+        $jwtToken = JWT::encode((array)$decodedToken, 'poney', 'HS256');
 
         $this->decode($jwtToken)->shouldBeLike($decodedToken);
     }
 
     function it_can_allow_different_algorithms()
     {
-        $this->beConstructedWith("secret", ["HS256", "HS384"]);
+        $this->beConstructedWith("secret", ['kid1' => "HS256", 'kid2' => "HS384"]);
 
         $decodedToken = new \stdClass();
         $decodedToken->sub = '1234567890';
         $decodedToken->name = "John Doe";
 
-        $jwtToken = JWT::encode($decodedToken, 'secret', 'HS384');
+        $jwtToken = JWT::encode((array)$decodedToken, 'secret', 'HS384', 'kid2');
 
         $this->decode($jwtToken)->shouldBeLike($decodedToken);
     }

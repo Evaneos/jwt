@@ -12,12 +12,12 @@
     }
   ],
   "require": {
-    "php": ">=5.5",
+    "php": ">=7.4",
     "evaneos/security": "^0.1",
-    "firebase/php-jwt": "^5.0"
+    "firebase/php-jwt": "^6.0"
   },
   "require-dev": {
-    "phpspec/phpspec": "~2.0",
+    "phpspec/phpspec": "~7.3",
     "symfony/http-foundation": "^2.7|^3.0"
   },
   "suggest": {
@@ -29,7 +29,8 @@
   },
   "autoload": {
     "psr-4": {
-      "Evaneos\\JWT\\": "src"
+      "Evaneos\\JWT\\": "src",
+      "spec\\Evaneos\\JWT\\": "spec"
     }
   }
 }

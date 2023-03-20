@@ -4,28 +4,17 @@ namespace Evaneos\JWT\Util;
 
 use Evaneos\Security\User;
 use Evaneos\Security\UserId;
+use stdClass;
 
 class SecurityUserConverter
 {
-    /**
-     * Build a User from a JWT token.
-     *
-     * @param object $token
-     * @return User
-     */
-    public function buildUserFromToken($token)
+    public function buildUserFromToken(stdClass $token): User
     {
         return new User(new UserId($token->sub));
     }
 
-    /**
-     * Get the JWT token of a user.
-     *
-     * @param User $user
-     * @return array
-     */
-    public function buildTokenFromUser(User $user)
+    public function buildTokenFromUser(User $user): array
     {
-        return array('sub' => (string) $user->id());
+        return ['sub' => (string) $user->id()];
     }
 }

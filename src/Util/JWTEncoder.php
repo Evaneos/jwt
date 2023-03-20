@@ -6,36 +6,20 @@ use Firebase\JWT\JWT;
 
 class JWTEncoder
 {
-    /**
-     * @var string
-     */
-    private $secretKey;
+    private string $secretKey;
+    private string $algorithm;
+    private ?string $kid;
 
-    /**
-     * @var string
-     */
-    private $algorithm;
-
-    /**
-     * Constructor.
-     *
-     * @param string $secretKey
-     * @param string $algorithm
-     */
-    public function __construct($secretKey, $algorithm = 'HS256')
+    public function __construct(string $secretKey, string $algorithm = 'HS256', string $kid = null)
     {
         $this->secretKey = $secretKey;
         $this->algorithm = $algorithm;
+        $this->kid = $kid;
     }
 
-    /**
-     * @param mixed $payload
-     *
-     * @return object
-     */
-    public function encode($payload)
+    public function encode(array $payload): string
     {
-        return JWT::encode($payload, $this->secretKey, $this->algorithm);
+        return JWT::encode($payload, $this->secretKey, $this->algorithm, $this->kid);
     }
 }
 

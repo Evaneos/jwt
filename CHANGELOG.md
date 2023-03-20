@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.0
+
+* [BC BREAK] Bump PHP requirement to `>=7.4`
+* [BC BREAK] Bump firebase/php-jwt requirement to `>=6.0`
+  * kids need to be set for multiple algorithms
+  * https://github.com/firebase/php-jwt/issues/351
+
 ## 0.4.0
 
 * [BC BREAK] Bump PHP requirement to `>=5.5`
