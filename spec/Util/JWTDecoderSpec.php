@@ -21,27 +21,33 @@ class JWTDecoderSpec extends ObjectBehavior
 
     function it_decodes_JWTToken()
     {
-        $decodedToken = ['sub' => '1234567890', 'name' => "John Doe"];
+        $decodedToken = new \stdClass();
+        $decodedToken->sub = '1234567890';
+        $decodedToken->name = "John Doe";
 
-        $jwtToken = JWT::encode($decodedToken, 'secret','HS256');
+        $jwtToken = JWT::encode((array)$decodedToken, 'secret', 'HS256');
 
         $this->decode($jwtToken)->shouldBeLike($decodedToken);
     }
 
     function it_throws_a_JWTDecodeUnexpectedValueException_if_there_is_an_UnexpectedValueException()
     {
-        $decodedToken = ['sub' => '1234567890', 'name' => "John Doe"];
+        $decodedToken = new \stdClass();
+        $decodedToken->sub = '1234567890';
+        $decodedToken->name = "John Doe";
 
-        $jwtToken = JWT::encode($decodedToken, 'different_secret_key','HS256');
+        $jwtToken = JWT::encode((array)$decodedToken, 'different_secret_key', 'HS256');
 
         $this->shouldThrow(JWTDecodeUnexpectedValueException::class)->during('decode', [$jwtToken]);
     }
 
     function it_throws_an_Exception_if_algorithm_is_not_allowed()
     {
-        $decodedToken = ['sub' => '1234567890', 'name' => "John Doe"];
+        $decodedToken = new \stdClass();
+        $decodedToken->sub = '1234567890';
+        $decodedToken->name = "John Doe";
 
-        $jwtToken = JWT::encode($decodedToken, 'secret', 'HS384');
+        $jwtToken = JWT::encode((array)$decodedToken, 'secret', 'HS384');
 
         $this->shouldThrow(\Exception::class)->during('decode', [$jwtToken]);
     }
@@ -50,20 +56,24 @@ class JWTDecoderSpec extends ObjectBehavior
     {
         $this->beConstructedWith("poney", ["HS256"]);
 
-        $decodedToken = ['sub' => '1234567890', 'name' => "John Doe"];
+        $decodedToken = new \stdClass();
+        $decodedToken->sub = '1234567890';
+        $decodedToken->name = "John Doe";
 
-        $jwtToken = JWT::encode($decodedToken, 'poney','HS256');
+        $jwtToken = JWT::encode((array)$decodedToken, 'poney', 'HS256');
 
         $this->decode($jwtToken)->shouldBeLike($decodedToken);
     }
 
     function it_can_allow_different_algorithms()
     {
-        $this->beConstructedWith("secret", ["HS256", "HS384"]);
+        $this->beConstructedWith("secret", ['kid1' => "HS256", 'kid2' => "HS384"]);
 
-        $decodedToken = ['sub' => '1234567890', 'name' => "John Doe"];
+        $decodedToken = new \stdClass();
+        $decodedToken->sub = '1234567890';
+        $decodedToken->name = "John Doe";
 
-        $jwtToken = JWT::encode($decodedToken, 'secret', 'HS384');
+        $jwtToken = JWT::encode((array)$decodedToken, 'secret', 'HS384', 'kid2');
 
         $this->decode($jwtToken)->shouldBeLike($decodedToken);
     }
